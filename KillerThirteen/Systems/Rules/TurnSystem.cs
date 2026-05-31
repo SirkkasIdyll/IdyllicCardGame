@@ -13,6 +13,7 @@ public partial class TurnSystem : NodeSystem
     
     private List<Node<HandComponent>> _players = [];
     private List<Node<HandComponent>> _orderedPlayersInRound = new();
+    private Node<HandComponent>? _currentPlayerTurn;
     private Node<HandComponent>? _roundWinner;
     private Node<HandComponent>? _roundLoser;
     
@@ -24,8 +25,29 @@ public partial class TurnSystem : NodeSystem
     public void LeaveGame(Node<HandComponent> player)
     {
         _players.Remove(player);
+        PassTurn(player);
+    }
+
+    /// <summary>
+    /// If you pass your turn, you're out of the current round and the turn is passed to the next player in line
+    /// </summary>
+    /// <param name="player"></param>
+    public void PassTurn(Node<HandComponent> player)
+    {
+        if (_currentPlayerTurn == null)
+            return;
+
+        if (!_currentPlayerTurn.Value.Equals(player))
+            return;
+        
+        var currentPlayerIndex = _orderedPlayersInRound.IndexOf(_currentPlayerTurn.Value);
+        _currentPlayerTurn = _orderedPlayersInRound[(currentPlayerIndex + 1) % _orderedPlayersInRound.Count];
+        _orderedPlayersInRound.Remove(player);
     }
     
+    /// <summary>
+    /// Deal cards, determine player order, and set current player's turn
+    /// </summary>
     public void StartRound()
     {
         // Takes two to tango
@@ -40,6 +62,7 @@ public partial class TurnSystem : NodeSystem
 
         var signal = new RoundStartSignal();
         _signalBus.EmitRoundStartSignal(ref signal);
+        _currentPlayerTurn = _orderedPlayersInRound[0];
     }
     
     // <summary>
