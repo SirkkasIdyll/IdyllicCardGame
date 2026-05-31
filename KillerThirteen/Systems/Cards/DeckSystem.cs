@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
+using KillerThirteen.Systems.Rules;
 using KillerThirteen.Temperance.NCS;
 using KillerThirteen.Temperance.Signals;
 
@@ -12,7 +13,6 @@ public partial class DeckSystem : NodeSystem
     [InjectedDependency] private readonly ComponentManager _componentManager = null!;
     [InjectedDependency] private readonly NodeManager _nodeManager = null!;
     // [InjectedDependency] private readonly NodeSystemManager _nodeSystemManager = null!;
-    [InjectedDependency] private readonly SignalBus _signalBus = null!;
     
     private static readonly Random RNG = new Random();
     private readonly List<Node<CardComponent>> _deck = new();
