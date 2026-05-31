@@ -97,8 +97,9 @@ public class TemperanceTest
     /// Tests the basic functionality of the NodeSystemManager
     /// </summary>
     [TestCase]
-    public void NodeSystemManagerTest()
+    public async Task NodeSystemManagerTest()
     {
+        await Task.Delay(100);
         _nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem);
         AssertObject(deckSystem).IsNotNull();
     }
