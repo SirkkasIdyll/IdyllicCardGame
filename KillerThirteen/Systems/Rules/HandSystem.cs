@@ -9,7 +9,7 @@ using KillerThirteen.Temperance.Signals;
 namespace KillerThirteen.Systems.Rules;
 
 [GlobalClass]
-public partial class HandRulesSystem : NodeSystem
+public partial class HandSystem : NodeSystem
 {
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
     
@@ -209,6 +209,9 @@ public partial class HandRulesSystem : NodeSystem
         
         _lastHandPlayed.AddRange(selectedCards);
         _currentHandType = handType.Value;
+
+        var signal = new HandPlayedSignal(player);
+        _signalBus.EmitHandPlayedSignal(player, ref signal);
     }
 
     private List<Node<CardComponent>> SortHand(List<Node<CardComponent>> cards)
@@ -225,4 +228,14 @@ public enum HandType
     Quads,
     Sequence,
     PairedSequence
+}
+
+public class HandPlayedSignal : UserSignalArgs
+{
+    public Node<HandComponent> Node;
+
+    public HandPlayedSignal(Node<HandComponent> node)
+    {
+        Node = node;
+    }
 }
