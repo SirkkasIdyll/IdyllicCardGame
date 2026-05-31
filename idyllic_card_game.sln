@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KillerThirteen", "KillerThirteen\KillerThirteen.csproj", "{429CF6DC-3833-4768-BEC0-48B2FAD24772}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator", "Generator\Generator.csproj", "{82EC07C8-07B7-4DBC-AB64-E2BCCB7F2EA1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{429CF6DC-3833-4768-BEC0-48B2FAD24772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429CF6DC-3833-4768-BEC0-48B2FAD24772}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429CF6DC-3833-4768-BEC0-48B2FAD24772}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{429CF6DC-3833-4768-BEC0-48B2FAD24772}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{82EC07C8-07B7-4DBC-AB64-E2BCCB7F2EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82EC07C8-07B7-4DBC-AB64-E2BCCB7F2EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82EC07C8-07B7-4DBC-AB64-E2BCCB7F2EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82EC07C8-07B7-4DBC-AB64-E2BCCB7F2EA1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
