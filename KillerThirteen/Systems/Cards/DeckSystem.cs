@@ -46,12 +46,14 @@ public partial class DeckSystem : NodeSystem
     /// <summary>
     /// Simplified Fisher-Yates shuffle
     /// </summary>
-    public void ShuffleDeck()
+    public void ShuffleDeck(out List<Node> deck)
     {
-        for (var n = _deck.Count; n > 1; n--)
+        for (var n = _deck.Count - 1; n > 1; n--)
         {
-            var k = RNG.Next(n + 1);
+            var k = RNG.Next(n);
             (_deck[k], _deck[n]) = (_deck[n], _deck[k]);
         }
+
+        deck = _deck;
     }
 }
