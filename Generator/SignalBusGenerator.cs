@@ -55,9 +55,10 @@ public class SignalBusGenerator : IIncrementalGenerator
         
         // begin creating the source we'll inject into the users compilation
         var sourceBuilder = new StringBuilder(@"using System;
-using Godot;
+using KillerThirteen.Temperance.NCS;
 ");
-        sourceBuilder.AppendLine($"using {symbolNameSpace};");
+        if (symbolNameSpace != "KillerThirteen.Temperance.NCS")
+            sourceBuilder.AppendLine($"using {symbolNameSpace};");
         sourceBuilder.AppendLine(@"
 namespace KillerThirteen.Temperance.Signals;
 
