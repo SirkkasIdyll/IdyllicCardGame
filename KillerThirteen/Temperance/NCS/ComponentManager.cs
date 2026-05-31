@@ -106,16 +106,16 @@ public class ComponentManager
         component.QueueFree();
     }
 
-    /// <summary>
-    /// Gets all nodes that have the Component T so that certain checks can be applied to them
-    /// or so that things that need to happen each frame can be applied to each component instance
-    /// </summary>
-    public void GetNodesWithComponent<T>(out List<Node> nodes) where T : Component
-    {
-        nodes = [];
-        if (NodeDictionary.TryGetValue(typeof(T).Name, out var nodeList))
-            nodes = nodeList;
-    }
+    // /// <summary>
+    // /// Gets all nodes that have the Component T so that certain checks can be applied to them
+    // /// or so that things that need to happen each frame can be applied to each component instance
+    // /// </summary>
+    // public void GetNodesWithComponent<T>(out List<Node> nodes) where T : Component
+    // {
+    //     nodes = [];
+    //     if (NodeDictionary.TryGetValue(typeof(T).Name, out var nodeList))
+    //         nodes = nodeList;
+    // }
 }
 
 public class ComponentAddedSignal : UserSignalArgs
