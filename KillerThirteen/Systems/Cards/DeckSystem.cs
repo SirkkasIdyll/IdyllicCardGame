@@ -65,6 +65,29 @@ public partial class DeckSystem : NodeSystem
         deck = _deck;
     }
 
+    /// <summary>
+    /// Add cards to each player's hands until each player has a total of 13 cards
+    /// </summary>
+    /// <param name="players">The players participating in the round that need cards</param>
+    /// <param name="dealerIndex">The index of the dealer so we can deal in clock-wise fashion</param>
+    public void DealCards(List<Node<HandComponent>> players, int dealerIndex)
+    {
+        ShuffleDeck(out var deck);
+        
+        var cardCountToDeal = players.Count * 13;
+        for (int i = 0; i < cardCountToDeal - 1; i++)
+        {
+            // We want to deal to the player clock-wise to the dealer and continue from there
+            // i = 0; (0 + 0 + 1) % 4 = 1
+            // i = 1; (1 + 0 + 1) % 4 = 2
+            // i = 2; (2 + 0 + 1) % 4 = 3
+            // i = 3; (3 + 0 + 1) % 4 = 0
+            // i = 4; (4 + 0 + 1) % 4 = 1...
+            var index = (i + dealerIndex + 1) % players.Count;
+            players[index].Comp.Cards.Add(deck[i]);
+        }
+    }
+
     public void GetDeck(out List<Node<CardComponent>> deck)
     {
         deck = _deck;
