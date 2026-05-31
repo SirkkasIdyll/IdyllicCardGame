@@ -11,21 +11,61 @@ public partial class TurnSystem : NodeSystem
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
     [InjectedDependency] private readonly DeckSystem _deckSystem = null!;
     
+    /// <summary>
+    /// List of players in the game, doesn't necessarily mean they're in the round
+    /// All players are added to the round at the start of each round
+    /// </summary>
     private List<Node<HandComponent>> _players = [];
-    private List<Node<HandComponent>> _orderedPlayersInRound = new();
+    
+    /// <summary>
+    /// List of players still playing in the hand and haven't passed yet
+    /// Order should be clock-wise
+    /// </summary>
+    private List<Node<HandComponent>> _orderedPlayersStillIn = new();
+    
+    // Current player is not in control of hand until they actually play something
+    // They can choose to play or pass
     private Node<HandComponent>? _currentPlayerTurn;
+
+    // The player in control of hand is still in the round
+    // They get to play whatever they want if everyone else passes the turn back to them
+    private Node<HandComponent>? _inControlOfHand;
+    
+    // Round winner is the player that finishes first, they start first next round
     private Node<HandComponent>? _roundWinner;
+    
+    // Round loser is the last player with cards in hand, they have to shuffle the deck and deal cards
     private Node<HandComponent>? _roundLoser;
     
+    /// <summary>
+    /// A player should be able to join a game at any time but not necessarily be in the hand
+    /// They can be dealt in next round
+    /// </summary>
+    /// <param name="player"></param>
     public void JoinGame(Node<HandComponent> player)
     {
         _players.Add(player);
     }
 
+    /// <summary>
+    /// A player should be able to leave a game at any time
+    /// If it's their turn, they should pass their turn
+    /// If it's not their turn, just remove them from the turn queue
+    /// </summary>
+    /// <param name="player"></param>
     public void LeaveGame(Node<HandComponent> player)
     {
         _players.Remove(player);
-        PassTurn(player);
+
+        if (_currentPlayerTurn != null && _currentPlayerTurn.Value.Equals(player))
+        {
+            PassTurn(player);
+            return;
+        }
+        
+        var index = _orderedPlayersStillIn.IndexOf(player);
+        _currentPlayerTurn = _orderedPlayersStillIn[(index + 1) % _orderedPlayersStillIn.Count];
+        _orderedPlayersStillIn.Remove(player);
     }
 
     /// <summary>
@@ -40,9 +80,9 @@ public partial class TurnSystem : NodeSystem
         if (!_currentPlayerTurn.Value.Equals(player))
             return;
         
-        var currentPlayerIndex = _orderedPlayersInRound.IndexOf(_currentPlayerTurn.Value);
-        _currentPlayerTurn = _orderedPlayersInRound[(currentPlayerIndex + 1) % _orderedPlayersInRound.Count];
-        _orderedPlayersInRound.Remove(player);
+        var currentPlayerIndex = _orderedPlayersStillIn.IndexOf(_currentPlayerTurn.Value);
+        _currentPlayerTurn = _orderedPlayersStillIn[(currentPlayerIndex + 1) % _orderedPlayersStillIn.Count];
+        _orderedPlayersStillIn.Remove(player);
     }
     
     /// <summary>
@@ -62,7 +102,7 @@ public partial class TurnSystem : NodeSystem
 
         var signal = new RoundStartSignal();
         _signalBus.EmitRoundStartSignal(ref signal);
-        _currentPlayerTurn = _orderedPlayersInRound[0];
+        _currentPlayerTurn = _orderedPlayersStillIn[0];
     }
     
     // <summary>
@@ -73,7 +113,7 @@ public partial class TurnSystem : NodeSystem
     // </summary>
     private void DeterminePlayerOrder()
     {
-        _orderedPlayersInRound.Clear();
+        _orderedPlayersStillIn.Clear();
         var startingPlayerIndex = 0;
         if (_roundWinner != null)
             startingPlayerIndex = _players.IndexOf(_roundWinner.Value);
@@ -97,7 +137,7 @@ public partial class TurnSystem : NodeSystem
         // i = 2; (2 + 3) % 4 = 1
         // i = 3; (3 + 3) % 4 = 2
         for (int i = 0; i < _players.Count; i++)
-            _orderedPlayersInRound.Add(_players[(i + startingPlayerIndex) % _players.Count]);
+            _orderedPlayersStillIn.Add(_players[(i + startingPlayerIndex) % _players.Count]);
     }
 }
 

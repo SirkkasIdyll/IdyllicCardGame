@@ -43,7 +43,7 @@ public class RulesTest
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
         
-        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandRulesSystem>(out var rulesSystem)).IsTrue();
+        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
@@ -72,7 +72,7 @@ public class RulesTest
         playedCards.Add(deck[0]);
         playedCards.Add(deck[13]);
         
-        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandRulesSystem>(out var rulesSystem)).IsTrue();
+        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
@@ -102,7 +102,7 @@ public class RulesTest
         playedCards.Add(deck[13]);
         playedCards.Add(deck[26]);
         
-        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandRulesSystem>(out var rulesSystem)).IsTrue();
+        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
@@ -128,7 +128,7 @@ public class RulesTest
         playedCards.Add(deck[26]);
         playedCards.Add(deck[39]);
         
-        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandRulesSystem>(out var rulesSystem)).IsTrue();
+        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
@@ -153,7 +153,7 @@ public class RulesTest
         playedCards.Add(deck[0]);
         playedCards.Add(deck[1]);
         
-        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandRulesSystem>(out var rulesSystem)).IsTrue();
+        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
@@ -242,7 +242,7 @@ public class RulesTest
         playedCards.Add(deck[13]);
         playedCards.Add(deck[14]);
         
-        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandRulesSystem>(out var rulesSystem)).IsTrue();
+        AssertBool(_nodeSystemManager.TryGetNodeSystem<HandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
