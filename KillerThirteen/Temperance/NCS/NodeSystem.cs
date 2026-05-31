@@ -17,4 +17,11 @@ public abstract partial class NodeSystem : Node
     /// Otherwise default name will look like @Node3D@1
     /// </summary>
     protected NodeSystem() { SetName(GetType().Name); }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+
+        NodeSystemManager.Instance.RemoveNodeSystem(GetType().Name);
+    }
 }

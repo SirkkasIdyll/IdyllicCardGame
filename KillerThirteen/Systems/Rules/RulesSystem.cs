@@ -18,6 +18,9 @@ public partial class RulesSystem : NodeSystem
         if (!IsValidHandType(cards, out var handType))
             return false;
         
+        // if (handType != _currentRoundHandType)
+        //     
+        
         return false;
     }
 

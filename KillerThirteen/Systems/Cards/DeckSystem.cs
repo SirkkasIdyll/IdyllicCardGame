@@ -42,7 +42,7 @@ public partial class DeckSystem : NodeSystem
     /// <summary>
     /// Adds one of each suit and rank to the deck (it also spawns the cards into the world)
     /// </summary>
-    private void CreateNewDeck(out List<Node<CardComponent>> deck)
+    public void CreateNewDeck(out List<Node<CardComponent>> deck)
     {
         ClearDeck();
         

@@ -23,7 +23,7 @@ public class DeckTest
         _rootScene.TreeEntered += () =>
         {
             _nodeSystemManager.InitializeNodeSystems(_rootScene);
-            _rootScene.AddChild(_nodeManager);
+            _nodeManager.SetRootScene(_rootScene);
         };
         AddNode(_rootScene);
     }
@@ -37,7 +37,7 @@ public class DeckTest
         if (deckSystem is null)
             return;
 
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         AssertBool(deck.Count == 52).AppendFailureMessage(
             "Failed to generate a proper deck of fifty two cards."
             ).IsTrue();

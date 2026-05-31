@@ -23,7 +23,7 @@ public class RulesTest
         _rootScene.TreeEntered += () =>
         {
             _nodeSystemManager.InitializeNodeSystems(_rootScene);
-            _rootScene.AddChild(_nodeManager);
+            _nodeManager.SetRootScene(_rootScene);
         };
         AddNode(_rootScene);
     }
@@ -39,7 +39,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
         
@@ -67,7 +67,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
         playedCards.Add(deck[13]);
@@ -96,7 +96,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
         playedCards.Add(deck[13]);
@@ -121,7 +121,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
         playedCards.Add(deck[13]);
@@ -147,7 +147,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[2]);
         playedCards.Add(deck[0]);
@@ -233,7 +233,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
-        deckSystem.GetDeck(out var deck);
+        deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[2]);
         playedCards.Add(deck[0]);

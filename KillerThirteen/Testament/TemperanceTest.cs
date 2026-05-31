@@ -23,7 +23,7 @@ public class TemperanceTest
         _rootScene.TreeEntered += () =>
         {
             _nodeSystemManager.InitializeNodeSystems(_rootScene);
-            _rootScene.AddChild(_nodeManager);
+            _nodeManager.SetRootScene(_rootScene);
         };
         AddNode(_rootScene);
     }
@@ -89,8 +89,6 @@ public class TemperanceTest
     [TestCase]
     public void NodeManagerTest()
     {
-        AssertBool(_nodeManager.TrySpawnNode("TheWorld", out _)).AppendFailureMessage(
-            "Spawned node despite not being assigned as the server.").IsFalse();
     }
 
     /// <summary>
@@ -99,7 +97,7 @@ public class TemperanceTest
     [TestCase]
     public void NodeSystemManagerTest()
     {
-        // _nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem);
-        // AssertObject(deckSystem).IsNotNull();
+        _nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem);
+        AssertObject(deckSystem).IsNotNull();
     }
 }

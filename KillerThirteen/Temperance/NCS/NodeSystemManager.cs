@@ -96,6 +96,11 @@ public partial class NodeSystemManager
         nodeSystem = _rootScene?.GetNodeOrNull<T>($"{typeof(T).Name}");
         return nodeSystem != null;
     }
+
+    public void RemoveNodeSystem(string nodeSystemName)
+    {
+        _nodeSystemDictionary.Remove(nodeSystemName);
+    }
 }
 
 /// <summary>
