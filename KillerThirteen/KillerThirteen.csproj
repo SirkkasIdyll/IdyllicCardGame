@@ -28,5 +28,6 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Resources\Prototypes\" />
+      <Folder Include="Systems\Player\" />
     </ItemGroup>
 </Project>

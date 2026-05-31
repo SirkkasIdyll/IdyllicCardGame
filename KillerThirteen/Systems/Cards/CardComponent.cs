@@ -9,11 +9,13 @@ public partial class CardComponent : Component
     /// <summary>
     /// Spades is beat by Clubs is beat by Diamonds is beat by Hearts
     /// </summary>
+    [Export]
     public CardSuit Suit;
     
     /// <summary>
     /// Regular card rank except two is the highest value
     /// </summary>
+    [Export]
     public CardRank Rank;
 }
 

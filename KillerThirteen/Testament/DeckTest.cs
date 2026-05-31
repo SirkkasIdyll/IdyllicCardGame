@@ -37,27 +37,21 @@ public class DeckTest
         if (deckSystem is null)
             return;
 
-        deckSystem.CreateNewDeck(out var deck);
+        deckSystem.GetDeck(out var deck);
         AssertBool(deck.Count == 52).AppendFailureMessage(
             "Failed to generate a proper deck of fifty two cards."
             ).IsTrue();
 
-        var originalDeck =  new Node[52];
+        var originalDeck =  new Node<CardComponent>[52];
         deck.CopyTo(originalDeck);
         
         deckSystem.ShuffleDeck(out deck);
         var matchesOriginalDeck = true;
         for (var i = deck.Count - 1; i > 0; i--)
         {
-            if (!_componentManager.TryGetComponent<CardComponent>(originalDeck[i], out var cardComp1))
-                continue;
+            GD.Print(originalDeck[i].Comp.Rank + " of " + originalDeck[i].Comp.Suit + " vs " + deck[i].Comp.Rank + " of " + deck[i].Comp.Suit);
 
-            if (!_componentManager.TryGetComponent<CardComponent>(deck[i], out var cardComp2))
-                continue;
-            
-            GD.Print(cardComp1.Rank + " of " + cardComp1.Suit + " vs " + cardComp2.Rank + " of " + cardComp2.Suit);
-
-            if (cardComp1.Suit == cardComp2.Suit && cardComp1.Rank == cardComp2.Rank)
+            if (originalDeck[i].Comp.Suit == deck[i].Comp.Suit && originalDeck[i].Comp.Rank == deck[i].Comp.Rank)
                 continue;
 
             matchesOriginalDeck = false;

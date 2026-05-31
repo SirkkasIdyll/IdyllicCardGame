@@ -15,14 +15,36 @@ public partial class DeckSystem : NodeSystem
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
     
     private static readonly Random RNG = new Random();
-    private readonly List<Node> _deck = new();
-    
+    private readonly List<Node<CardComponent>> _deck = new();
+
+    public override void _Ready()
+    {
+        base._Ready();
+        
+        CreateNewDeck(out _);
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        
+        ClearDeck();
+    }
+
+    private void ClearDeck()
+    {
+        foreach (var node in _deck)
+            node.Owner.QueueFree();
+        
+        _deck.Clear();
+    }
+
     /// <summary>
     /// Adds one of each suit and rank to the deck (it also spawns the cards into the world)
     /// </summary>
-    public void CreateNewDeck(out List<Node> deck)
+    private void CreateNewDeck(out List<Node<CardComponent>> deck)
     {
-        _deck.Clear();
+        ClearDeck();
         
         foreach (var suit in Enum.GetValues<CardSuit>())
         {
@@ -36,17 +58,22 @@ public partial class DeckSystem : NodeSystem
 
                 cardComponent.Suit = suit;
                 cardComponent.Rank = rank;
-                _deck.Add(node3D);
+                _deck.Add((node3D, cardComponent));
             }
         }
 
         deck = _deck;
     }
 
+    public void GetDeck(out List<Node<CardComponent>> deck)
+    {
+        deck = _deck;
+    }
+
     /// <summary>
     /// Simplified Fisher-Yates shuffle
     /// </summary>
-    public void ShuffleDeck(out List<Node> deck)
+    public void ShuffleDeck(out List<Node<CardComponent>> deck)
     {
         for (var n = _deck.Count - 1; n > 1; n--)
         {
