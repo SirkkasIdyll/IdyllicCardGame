@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 using KillerThirteen.Systems.Cards;
@@ -9,50 +10,64 @@ namespace KillerThirteen.Systems.Rules;
 [GlobalClass]
 public partial class RulesSystem : NodeSystem
 {
+    private readonly List<Node<CardComponent>> _lastSortedHandPlayed = [];
     private HandType _currentRoundHandType;
 
-    public bool IsValidHandType(List<Node<CardComponent>> cardsPlayed, out HandType? handType)
+    public bool CanPlayHand(List<Node<CardComponent>> cards)
+    {
+        if (!IsValidHandType(cards, out var handType))
+            return false;
+        
+        return false;
+    }
+
+    public bool IsValidHandType(List<Node<CardComponent>> cards, [NotNullWhen(true)] out HandType? handType)
     {
         handType = null;
-        var sortedHand = cardsPlayed.OrderBy(x => x.Comp.Rank).ToList();
+        var sortedHand = SortHand(cards);
 
-        if (cardsPlayed.Count == 1)
+        var handString = "Played: ";
+        foreach (var card in sortedHand)
+            handString += card.Comp.Rank + " of " + card.Comp.Suit + ", ";
+        GD.Print(handString.Substring(0, handString.Length - 2));
+        
+        if (cards.Count == 1)
         {
             handType = HandType.Single;
             return true;
         }
 
-        if (cardsPlayed.Count == 2)
+        if (cards.Count == 2)
         {
-            if (cardsPlayed[0].Comp.Rank == cardsPlayed[1].Comp.Rank)
+            if (cards[0].Comp.Rank == cards[1].Comp.Rank)
             {
                 handType = HandType.Pair;
                 return true;
             }
         }
 
-        if (cardsPlayed.Count == 3)
+        if (cards.Count == 3)
         {
-            if (cardsPlayed[0].Comp.Rank == cardsPlayed[1].Comp.Rank &&
-                cardsPlayed[1].Comp.Rank == cardsPlayed[2].Comp.Rank)
+            if (cards[0].Comp.Rank == cards[1].Comp.Rank &&
+                cards[1].Comp.Rank == cards[2].Comp.Rank)
             {
                 handType = HandType.Triples;
                 return true;
             }
         }
 
-        if (cardsPlayed.Count == 4)
+        if (cards.Count == 4)
         {
-            if (cardsPlayed[0].Comp.Rank == cardsPlayed[1].Comp.Rank &&
-                cardsPlayed[1].Comp.Rank == cardsPlayed[2].Comp.Rank &&
-                cardsPlayed[2].Comp.Rank == cardsPlayed[3].Comp.Rank)
+            if (cards[0].Comp.Rank == cards[1].Comp.Rank &&
+                cards[1].Comp.Rank == cards[2].Comp.Rank &&
+                cards[2].Comp.Rank == cards[3].Comp.Rank)
             {
                 handType = HandType.Quads;
                 return true;
             }
         }
 
-        if (cardsPlayed.Count >= 3)
+        if (cards.Count >= 3)
         {
             // Check for sequence
             if (sortedHand.Zip(sortedHand.Skip(1), (node1, node2) => node1.Comp.Rank + 1 == node2.Comp.Rank).All(x => x))
@@ -63,32 +78,16 @@ public partial class RulesSystem : NodeSystem
         }
 
         // Must be an even amount of cards and enough cards to validly make up a paired sequence
-        if (cardsPlayed.Count >= 6 && cardsPlayed.Count % 2 == 0)
+        if (cards.Count >= 6 && cards.Count % 2 == 0)
         {
-            var (checkPair, checkSequence) = (true, false);
-            for (int i = 0; i < sortedHand.Count - 1; i++)
+            var secondHalf = cards.Count / 2;
+            for (int i = 0; i < cards.Count / 2 - 1; i++)
             {
-                if (checkPair)
-                {
-                    if (sortedHand[i].Comp.Rank == sortedHand[i + 1].Comp.Rank)
-                    {
-                        (checkPair, checkSequence) = (checkSequence, checkPair);
-                        continue;
-                    }
+                if (sortedHand[i].Comp.Rank + 1 == sortedHand[i + 1].Comp.Rank &&
+                    sortedHand[i].Comp.Rank == sortedHand[i + secondHalf].Comp.Rank)
+                    continue;
 
-                    return false;
-                }
-
-                if (checkSequence)
-                {
-                    if (sortedHand[i].Comp.Rank + 1 == sortedHand[i + 1].Comp.Rank)
-                    {
-                        (checkPair, checkSequence) = (checkSequence, checkPair);
-                        continue;
-                    }
-
-                    return false;
-                }
+                return false;
             }
 
             handType = HandType.PairedSequence;
@@ -101,6 +100,11 @@ public partial class RulesSystem : NodeSystem
     public void GetCurrentRoundHandType(out HandType handType)
     {
         handType = _currentRoundHandType;
+    }
+
+    private List<Node<CardComponent>> SortHand(List<Node<CardComponent>> cards)
+    {
+        return cards.OrderBy(x => x.Comp.Suit).ThenBy(x => x.Comp.Rank).ToList();
     }
 }
 

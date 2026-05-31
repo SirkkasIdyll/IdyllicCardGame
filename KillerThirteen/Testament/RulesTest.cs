@@ -214,6 +214,12 @@ public class RulesTest
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
+        
+        playedCards.Add(deck[12]);
+        
+        AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
+        AssertObject(handType).IsNotNull();
+        AssertBool(handType == HandType.Sequence).IsTrue();
     }
     
     /// <summary>
