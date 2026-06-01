@@ -8,6 +8,9 @@ using KillerThirteen.Temperance.Signals;
 
 namespace KillerThirteen.Systems.Rules;
 
+/// <summary>
+/// Responsible for checking valid hands and playable hands
+/// </summary>
 [GlobalClass]
 public partial class HandSystem : NodeSystem
 {
