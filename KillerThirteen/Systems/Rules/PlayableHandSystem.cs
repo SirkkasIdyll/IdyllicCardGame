@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 using KillerThirteen.Systems.Cards;
+using KillerThirteen.Systems.Player;
 using KillerThirteen.Temperance.NCS;
 using KillerThirteen.Temperance.Signals;
 
@@ -12,7 +13,7 @@ namespace KillerThirteen.Systems.Rules;
 /// Responsible for checking valid hands and playable hands
 /// </summary>
 [GlobalClass]
-public partial class HandSystem : NodeSystem
+public partial class PlayableHandSystem : NodeSystem
 {
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
     
@@ -199,7 +200,7 @@ public partial class HandSystem : NodeSystem
         return false;
     }
     
-    public void PlayHand(Node<HandComponent> player, List<Node<CardComponent>> selectedCards)
+    public void PlayHand(Node<PlayerHandComponent> player, List<Node<CardComponent>> selectedCards)
     {
         if (!IsValidHandType(selectedCards, out var handType))
             return;
@@ -235,9 +236,9 @@ public enum HandType
 
 public class HandPlayedSignal : UserSignalArgs
 {
-    public Node<HandComponent> Node;
+    public Node<PlayerHandComponent> Node;
 
-    public HandPlayedSignal(Node<HandComponent> node)
+    public HandPlayedSignal(Node<PlayerHandComponent> node)
     {
         Node = node;
     }

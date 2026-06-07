@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
-using KillerThirteen.Systems.Rules;
+using KillerThirteen.Systems.Player;
 using KillerThirteen.Temperance.NCS;
-using KillerThirteen.Temperance.Signals;
 
 namespace KillerThirteen.Systems.Cards;
 
@@ -70,7 +69,7 @@ public partial class DeckSystem : NodeSystem
     /// </summary>
     /// <param name="players">The players participating in the round that need cards</param>
     /// <param name="dealerIndex">The index of the dealer so we can deal in clock-wise fashion</param>
-    public void DealCards(List<Node<HandComponent>> players, int dealerIndex)
+    public void DealCards(List<Node<PlayerHandComponent>> players, int dealerIndex)
     {
         ShuffleDeck(out var deck);
         

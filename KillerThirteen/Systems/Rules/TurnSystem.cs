@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Godot;
 using KillerThirteen.Systems.Cards;
+using KillerThirteen.Systems.Player;
 using KillerThirteen.Temperance.NCS;
 using KillerThirteen.Temperance.Signals;
 
@@ -15,31 +16,31 @@ public partial class TurnSystem : NodeSystem
     /// List of players in the game, doesn't necessarily mean they're in the round
     /// All players are added to the round at the start of each round
     /// </summary>
-    private readonly List<Node<HandComponent>> _lobbyPlayers = [];
+    private readonly List<Node<PlayerHandComponent>> _roomPlayers = [];
     
     // Current player is not in control of hand until they actually play something
     // They can choose to play or pass
-    private Node<HandComponent>? _currentPlayerTurn;
+    private Node<PlayerHandComponent>? _currentPlayerTurn;
 
     /// <summary>
     /// Players still participating in the current hand who haven't passed yet
     /// </summary>
-    private readonly List<Node<HandComponent>> _handPlayers = new();
+    private readonly List<Node<PlayerHandComponent>> _handPlayers = new();
 
     /// <summary>
     /// Players participating in the round is anyone with cards still left in hand (means we're excluding late-joins)
     /// </summary>
-    private readonly List<Node<HandComponent>> _roundPlayers = new();
+    private readonly List<Node<PlayerHandComponent>> _roundPlayers = new();
     
     // Round winner is the player that finishes first, they start first next round
-    private Node<HandComponent>? _roundWinner;
+    private Node<PlayerHandComponent>? _roundWinner;
     
     // Round loser is the last player with cards in hand, they have to shuffle the deck and deal cards
-    private Node<HandComponent>? _roundLoser;
+    private Node<PlayerHandComponent>? _roundLoser;
 
     // The player in control of hand is still in the round
     // They get to play whatever they want if everyone else passes the turn back to them
-    private Node<HandComponent>? _inControlOfHand;
+    private Node<PlayerHandComponent>? _inControlOfHand;
 
     public override void _Ready()
     {
@@ -54,7 +55,7 @@ public partial class TurnSystem : NodeSystem
     /// If there is only one player left after the hand is played,
     /// the last player is the round loser and the round should end
     /// </summary>
-    private void OnHandPlayed(Node<HandComponent> player, ref HandPlayedSignal args)
+    private void OnHandPlayed(Node<PlayerHandComponent> player, ref HandPlayedSignal args)
     {
         NextHandPlayerTurn();
         
@@ -87,9 +88,9 @@ public partial class TurnSystem : NodeSystem
     /// They can be dealt in next round
     /// </summary>
     /// <param name="player"></param>
-    public void JoinGame(Node<HandComponent> player)
+    public void JoinRoom(Node<PlayerHandComponent> player)
     {
-        _lobbyPlayers.Add(player);
+        _roomPlayers.Add(player);
     }
 
     /// <summary>
@@ -98,9 +99,9 @@ public partial class TurnSystem : NodeSystem
     /// If it's not their turn, just remove them from the turn queue
     /// </summary>
     /// <param name="player"></param>
-    public void LeaveGame(Node<HandComponent> player)
+    public void LeaveRoom(Node<PlayerHandComponent> player)
     {
-        _lobbyPlayers.Remove(player);
+        _roomPlayers.Remove(player);
 
         if (_currentPlayerTurn != null && _currentPlayerTurn.Value.Equals(player))
         {
@@ -118,7 +119,7 @@ public partial class TurnSystem : NodeSystem
     /// If there is only one player left, the hand restarts
     /// </summary>
     /// <param name="player"></param>
-    public void PassTurn(Node<HandComponent> player)
+    public void PassTurn(Node<PlayerHandComponent> player)
     {
         if (_currentPlayerTurn == null)
             return;
@@ -138,12 +139,13 @@ public partial class TurnSystem : NodeSystem
         // Takes two to tango
         // Threesome to be somethin...
         // But a fourway to bust your doorway
-        if (_lobbyPlayers.Count < 2)
+        if (_roomPlayers.Count < 2)
             return;
 
-        var dealerIndex = _roundLoser != null ? _lobbyPlayers.IndexOf(_roundLoser.Value) : 0;
-        _deckSystem.DealCards(_lobbyPlayers, dealerIndex);
+        var dealerIndex = _roundLoser != null ? _roomPlayers.IndexOf(_roundLoser.Value) : 0;
+        _deckSystem.DealCards(_roomPlayers, dealerIndex);
         
+        // _roundPlayers = _lobbyPlayers;
         DeterminePlayerOrder();
         var signal = new RoundStartSignal();
         _signalBus.EmitRoundStartSignal(ref signal);

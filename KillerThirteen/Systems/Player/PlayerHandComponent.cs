@@ -3,10 +3,10 @@ using Godot;
 using KillerThirteen.Systems.Cards;
 using KillerThirteen.Temperance.NCS;
 
-namespace KillerThirteen.Systems.Rules;
+namespace KillerThirteen.Systems.Player;
 
 [GlobalClass]
-public partial class HandComponent : Component
+public partial class PlayerHandComponent : Component
 {
     public List<Node<CardComponent>> Cards = [];
 }
