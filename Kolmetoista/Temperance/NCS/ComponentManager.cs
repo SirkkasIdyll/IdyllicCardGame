@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Temperance.Signals;
 using static GdUnit4.Assertions;
 
-namespace KillerThirteen.Temperance.NCS;
+namespace Kolmetoista.Temperance.NCS;
 
 /// <summary>
 /// NCS - Node, Component, (Node)System architecture

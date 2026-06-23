@@ -2,12 +2,12 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
-using KillerThirteen.Systems.Cards;
-using KillerThirteen.Systems.Player;
-using KillerThirteen.Temperance.NCS;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Systems.Cards;
+using Kolmetoista.Systems.Player;
+using Kolmetoista.Temperance.NCS;
+using Kolmetoista.Temperance.Signals;
 
-namespace KillerThirteen.Systems.Rules;
+namespace Kolmetoista.Systems.Rules;
 
 /// <summary>
 /// Responsible for checking valid hands and playable hands
@@ -15,48 +15,29 @@ namespace KillerThirteen.Systems.Rules;
 [GlobalClass]
 public partial class PlayableHandSystem : NodeSystem
 {
-    [InjectedDependency] private readonly SignalBus _signalBus = null!;
-    
-    /// <summary>
-    /// If something logically needs to work when sorted, it should be sorted immediately before you need it to be sorted
-    /// Rather than being assumed to be sorted
-    /// </summary>
-    private readonly List<Node<CardComponent>> _lastHandPlayed = [];
-    private HandType _currentHandType;
-
-    public override void _Ready()
-    {
-        base._Ready();
-
-        _signalBus.RoundStartSignal += OnRoundStart;
-    }
-
-    private void OnRoundStart(ref RoundStartSignal args)
-    {
-        _lastHandPlayed.Clear();
-    }
-
     /// <summary>
     /// Check if a hand is valid given the current round context
     /// </summary>
     /// <param name="cards">Unsorted cards the player wants to play</param>
+    /// <param name="lastHandPlayed">To compare the cards played to</param>
+    /// <param name="currentHandType">To determine valid hand type given cards played</param>
     /// <returns>True if you beat the last hand, false if you don't</returns>
-    public bool CanPlayHand(List<Node<CardComponent>> cards)
+    public bool CanPlayHand(List<Node<CardComponent>> cards, List<Node<CardComponent>> lastHandPlayed, HandType currentHandType)
     {
         // What are you even doing if you're not playing a valid hand
         if (!IsValidHandType(cards, out var handType))
             return false;
 
-        if (_lastHandPlayed.Count == 0)
+        if (lastHandPlayed.Count == 0)
             return true;
 
         // The specific scenarios when a two loses
         // Also known as "bombs"
         // Also the only time you can play a different hand type to respond to a hand
-        if (_currentHandType is HandType.Single or HandType.Pair or HandType.Triples
-            && _lastHandPlayed[0].Comp.Rank == CardRank.Two)
+        if (currentHandType is HandType.Single or HandType.Pair or HandType.Triples
+            && lastHandPlayed[0].Comp.Rank == CardRank.Two)
         {
-            switch (_currentHandType)
+            switch (currentHandType)
             {
                 // A single two can be beaten by 3+ paired sequence and quads
                 case HandType.Single when handType == HandType.PairedSequence && cards.Count >= 6:
@@ -73,13 +54,13 @@ public partial class PlayableHandSystem : NodeSystem
         }
 
         // Besides the special scenario above, you gotta match the current round's hand type
-        if (handType != _currentHandType)
+        if (handType != currentHandType)
             return false;
         
         var sortedHand = SortHand(cards);
-        var lastSortedHandPlayed = SortHand(_lastHandPlayed);
+        var lastSortedHandPlayed = SortHand(lastHandPlayed);
 
-        if (_currentHandType is HandType.Single or HandType.Pair or HandType.Triples or HandType.Quads)
+        if (currentHandType is HandType.Single or HandType.Pair or HandType.Triples or HandType.Quads)
         {
             // Greater rank always wins
             if (sortedHand[0].Comp.Rank > lastSortedHandPlayed[0].Comp.Rank)
@@ -89,18 +70,18 @@ public partial class PlayableHandSystem : NodeSystem
             // It's impossible to play the same rank with triples or quads so we don't need to check
             if (sortedHand[0].Comp.Rank == lastSortedHandPlayed[0].Comp.Rank)
             {
-                if (_currentHandType is HandType.Single
+                if (currentHandType is HandType.Single
                     && sortedHand[0].Comp.Suit > lastSortedHandPlayed[0].Comp.Suit)
                     return true;
 
-                if (_currentHandType == HandType.Pair
+                if (currentHandType == HandType.Pair
                     && sortedHand[1].Comp.Suit > lastSortedHandPlayed[1].Comp.Suit)
                     return true;
             }
         }
 
         // You can only play a sequence of the same length as the current round
-        if (_currentHandType is HandType.Sequence or HandType.PairedSequence
+        if (currentHandType is HandType.Sequence or HandType.PairedSequence
             && sortedHand.Count == lastSortedHandPlayed.Count)
         {
             // TIL I about the hat operator to get the last index
@@ -199,25 +180,11 @@ public partial class PlayableHandSystem : NodeSystem
 
         return false;
     }
-    
-    public void PlayHand(Node<PlayerHandComponent> player, List<Node<CardComponent>> selectedCards)
-    {
-        if (!IsValidHandType(selectedCards, out var handType))
-            return;
-            
-        if (!CanPlayHand(selectedCards))
-            return;
 
-        foreach (var card in selectedCards)
-            player.Comp.Cards.Remove(card);
-        
-        _lastHandPlayed.AddRange(selectedCards);
-        _currentHandType = handType.Value;
-
-        var signal = new HandPlayedSignal(player);
-        _signalBus.EmitHandPlayedSignal(player, ref signal);
-    }
-
+    /// <summary>
+    /// If something logically needs to work when sorted, it should be sorted immediately before you need it to be sorted
+    /// Rather than being assumed to be sorted
+    /// </summary>
     private List<Node<CardComponent>> SortHand(List<Node<CardComponent>> cards)
     {
         return cards.OrderBy(x => x.Comp.Suit).ThenBy(x => x.Comp.Rank).ToList();
@@ -232,14 +199,4 @@ public enum HandType
     Quads,
     Sequence,
     PairedSequence
-}
-
-public class HandPlayedSignal : UserSignalArgs
-{
-    public Node<PlayerHandComponent> Node;
-
-    public HandPlayedSignal(Node<PlayerHandComponent> node)
-    {
-        Node = node;
-    }
 }

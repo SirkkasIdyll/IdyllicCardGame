@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KillerThirteen", "KillerThirteen\KillerThirteen.csproj", "{429CF6DC-3833-4768-BEC0-48B2FAD24772}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kolmetoista", "Kolmetoista\Kolmetoista.csproj", "{429CF6DC-3833-4768-BEC0-48B2FAD24772}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator", "Generator\Generator.csproj", "{82EC07C8-07B7-4DBC-AB64-E2BCCB7F2EA1}"
 EndProject

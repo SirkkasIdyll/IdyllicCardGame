@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Temperance.Signals;
 
-namespace KillerThirteen.Temperance.NCS;
+namespace Kolmetoista.Temperance.NCS;
 
 /// <summary>
 /// NCS - Node, Component, (Node)System architecture

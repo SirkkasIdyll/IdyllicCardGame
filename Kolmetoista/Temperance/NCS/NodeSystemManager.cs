@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Godot;
 using Godot.Collections;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Temperance.Signals;
 
-namespace KillerThirteen.Temperance.NCS;
+namespace Kolmetoista.Temperance.NCS;
 
 /// <summary>
 /// NCS - Node, Component, (Node)System architecture

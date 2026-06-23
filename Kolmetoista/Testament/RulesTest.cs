@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Godot;
-using KillerThirteen.Systems.Cards;
-using KillerThirteen.Systems.Rules;
-using KillerThirteen.Temperance.NCS;
+using Kolmetoista.Systems.Cards;
+using Kolmetoista.Systems.Rules;
+using Kolmetoista.Temperance.NCS;
 
-namespace KillerThirteen.Testament;
+namespace Kolmetoista.Testament;
 
 using GdUnit4;
 using static GdUnit4.Assertions;

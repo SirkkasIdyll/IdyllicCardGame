@@ -1,7 +1,7 @@
 ﻿using Godot;
-using KillerThirteen.Temperance.NCS;
+using Kolmetoista.Temperance.NCS;
 
-namespace KillerThirteen.Systems.Cards;
+namespace Kolmetoista.Systems.Cards;
 
 [GlobalClass]
 public partial class CardComponent : Component

@@ -1,4 +1,4 @@
-﻿namespace KillerThirteen.Temperance.Signals;
+﻿namespace Kolmetoista.Temperance.Signals;
 
 /// <summary>
 /// Signals are what Godot calls messages, events that get triggered and can be subscribed to

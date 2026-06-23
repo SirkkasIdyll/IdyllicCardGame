@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
-using KillerThirteen.Systems.Player;
-using KillerThirteen.Temperance.NCS;
+using Kolmetoista.Systems.Player;
+using Kolmetoista.Temperance.NCS;
 
-namespace KillerThirteen.Systems.Cards;
+namespace Kolmetoista.Systems.Cards;
 
 [GlobalClass]
 public partial class DeckSystem : NodeSystem
