@@ -33,12 +33,13 @@ public class RulesTest
     /// Recognize two cards as nothing
     /// </summary>
     [TestCase]
-    public void SingleHandTest()
+    public void RecognizeSingleHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
             return;
         
+        // Pull a single card from the deck
         deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
@@ -47,10 +48,12 @@ public class RulesTest
         if (rulesSystem is null)
             return;
 
+        // Check that a single card is recognized as a Single
         AssertBool(rulesSystem.IsValidHandType(playedCards, out var handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Single).IsTrue();
         
+        // Check that two cards are not recognized as a Single
         playedCards.Add(deck[1]);
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsFalse();
         AssertObject(handType).IsNull();
@@ -61,12 +64,13 @@ public class RulesTest
     /// Recognize three cards of the same rank as not a pair
     /// </summary>
     [TestCase]
-    public void PairHandTest()
+    public void RecognizePairHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
             return;
         
+        // Pull two same rank cards from the deck
         deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
@@ -76,10 +80,12 @@ public class RulesTest
         if (rulesSystem is null)
             return;
 
+        // Check that two cards of the same rank are recognized as a Pair
         AssertBool(rulesSystem.IsValidHandType(playedCards, out var handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Pair).IsTrue();
         
+        // Check that three cards of the same rank are not recognized as a Pair
         playedCards.Add(deck[26]);
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
@@ -96,6 +102,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
+        // Pull three cards of the same rank from the deck
         deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
@@ -106,9 +113,16 @@ public class RulesTest
         if (rulesSystem is null)
             return;
 
+        // Check that three cards of the same rank are recognized as Triples
         AssertBool(rulesSystem.IsValidHandType(playedCards, out var handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Triples).IsTrue();
+        
+        // Check that four cards of the same rank are not recognized as Triples
+        playedCards.Add(deck[39]);
+        AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
+        AssertObject(handType).IsNotNull();
+        AssertBool(handType == HandType.Pair).IsFalse();
     }
     
     /// <summary>
@@ -121,6 +135,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
+        // Pull four cards of the same rank from the deck
         deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[0]);
@@ -132,6 +147,7 @@ public class RulesTest
         if (rulesSystem is null)
             return;
 
+        // Check that four cards of the same rank are recognized as Quads
         AssertBool(rulesSystem.IsValidHandType(playedCards, out var handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Quads).IsTrue();
@@ -147,6 +163,7 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
+        // Pull the first three cards from the deck in an unordered fashion
         deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[2]);
@@ -156,67 +173,68 @@ public class RulesTest
         AssertBool(_nodeSystemManager.TryGetNodeSystem<PlayableHandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
-
+        
+        // Check that it is recognized as a sequence
         AssertBool(rulesSystem.IsValidHandType(playedCards, out var handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that four cards in sequence are recognized as a sequence
         playedCards.Add(deck[3]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that five cards in sequence are recognized as a sequence
         playedCards.Add(deck[4]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that six cards in sequence are recognized as a sequence
         playedCards.Add(deck[5]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that seven cards in sequence are recognized as a sequence
         playedCards.Add(deck[6]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that eight cards in sequence are recognized as a sequence
         playedCards.Add(deck[7]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that nine cards in sequence are recognized as a sequence
         playedCards.Add(deck[8]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that ten cards in sequence are recognized as a sequence
         playedCards.Add(deck[9]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that eleven cards in sequence are recognized as a sequence
         playedCards.Add(deck[10]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that twelve cards in sequence are recognized as a sequence
         playedCards.Add(deck[11]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
         
+        // Check that thirteen cards in sequence are recognized as a sequence
         playedCards.Add(deck[12]);
-        
         AssertBool(rulesSystem.IsValidHandType(playedCards, out handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.Sequence).IsTrue();
@@ -233,23 +251,26 @@ public class RulesTest
         if (deckSystem is null)
             return;
         
+        // Pull two sets of sequences that are the same rank
         deckSystem.CreateNewDeck(out var deck);
         List<Node<CardComponent>> playedCards = new();
         playedCards.Add(deck[2]);
         playedCards.Add(deck[0]);
         playedCards.Add(deck[1]);
         playedCards.Add(deck[15]);
-        playedCards.Add(deck[13]);
         playedCards.Add(deck[14]);
+        playedCards.Add(deck[13]);
         
         AssertBool(_nodeSystemManager.TryGetNodeSystem<PlayableHandSystem>(out var rulesSystem)).IsTrue();
         if (rulesSystem is null)
             return;
 
+        // Check that two sets of sequences are recognized as a paired sequence
         AssertBool(rulesSystem.IsValidHandType(playedCards, out var handType)).IsTrue();
         AssertObject(handType).IsNotNull();
         AssertBool(handType == HandType.PairedSequence).IsTrue();
         
+        // Check that two sets of different sequences are not recognized as a paired sequence
         playedCards.RemoveAt(3);
         playedCards.RemoveAt(3);
         playedCards.RemoveAt(3);
