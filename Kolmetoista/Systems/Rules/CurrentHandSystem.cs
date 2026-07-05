@@ -7,6 +7,11 @@ using Kolmetoista.Temperance.Signals;
 
 namespace Kolmetoista.Systems.Rules;
 
+/// <summary>
+/// The "current hand" starts when a player first plays a hand type
+/// The "current hand" ends when all other players pass
+/// The next "current hand" is started by the player who was able to last play cards
+/// </summary>
 [GlobalClass]
 public partial class CurrentHandSystem : NodeSystem
 {
@@ -34,10 +39,10 @@ public partial class CurrentHandSystem : NodeSystem
     {
         base._Ready();
 
-        _signalBus.LeftRoomSignal += OnLeftRoom;
+        _signalBus.LeaveRoomSignal += OnLeftRoom;
     }
 
-    private void OnLeftRoom(Node<PlayerHandComponent> player, ref LeftRoomSignal args)
+    private void OnLeftRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
         if (_currentPlayerTurn != null && _currentPlayerTurn.Value.Equals(player))
         {

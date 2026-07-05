@@ -7,6 +7,10 @@ using Kolmetoista.Temperance.Signals;
 
 namespace Kolmetoista.Systems.Rules;
 
+/// <summary>
+/// A round starts when all players are dealt their hands
+/// A round ends when only one player has cards left in their hand
+/// </summary>
 [GlobalClass]
 public partial class RoundSystem : NodeSystem
 {
@@ -29,10 +33,10 @@ public partial class RoundSystem : NodeSystem
     {
         base._Ready();
 
-        _signalBus.LeftRoomSignal += OnLeftRoom;
+        _signalBus.LeaveRoomSignal += OnLeaveRoom;
     }
 
-    private void OnLeftRoom(Node<PlayerHandComponent> player, ref LeftRoomSignal args)
+    private void OnLeaveRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
         _playersInRound.Remove(player);
     }

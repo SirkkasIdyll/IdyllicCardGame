@@ -6,6 +6,10 @@ using Kolmetoista.Temperance.Signals;
 
 namespace Kolmetoista.Systems.Rules;
 
+/// <summary>
+/// A room consists of the players available to play in a round
+/// But does not necessarily mean they are in the round itself
+/// </summary>
 [GlobalClass]
 public partial class RoomSystem : NodeSystem
 {
@@ -54,8 +58,8 @@ public partial class RoomSystem : NodeSystem
                 continue;
             
             _playersInRoom[i] = null;
-            var signal = new LeftRoomSignal(player);
-            _signalBus.EmitLeftRoomSignal(player, ref signal);
+            var signal = new LeaveRoomSignal(player);
+            _signalBus.EmitLeaveRoomSignal(player, ref signal);
             return;
         }
     }
@@ -73,11 +77,11 @@ public class JoinedRoomSignal : UserSignalArgs
 
 public class FailedToJoinRoomSignal : UserSignalArgs;
 
-public class LeftRoomSignal : UserSignalArgs
+public class LeaveRoomSignal : UserSignalArgs
 {
     private Node<PlayerHandComponent> _player;
 
-    public LeftRoomSignal(Node<PlayerHandComponent> player)
+    public LeaveRoomSignal(Node<PlayerHandComponent> player)
     {
         _player = player;
     }
