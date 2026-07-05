@@ -15,11 +15,13 @@ public partial class RoomSystem : NodeSystem
 {
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
 
+    public const int MaxPlayers = 4;
+
     /// <summary>
     /// List of players in the game, doesn't necessarily mean they're in the round
     /// All players are added to the round at the start of each round
     /// </summary>
-    private readonly Node<PlayerHandComponent>?[] _playersInRoom = new Node<PlayerHandComponent>?[4];
+    private readonly Node<PlayerHandComponent>?[] _playersInRoom = new Node<PlayerHandComponent>?[MaxPlayers];
     
     /// <summary>
     /// A player should be able to join a game at any time but not necessarily be in the hand
@@ -28,7 +30,7 @@ public partial class RoomSystem : NodeSystem
     /// <param name="player"></param>
     public void JoinRoom(Node<PlayerHandComponent> player)
     {
-        for (var i = 0; i < _playersInRoom.Length; i++)
+        for (var i = 0; i < MaxPlayers; i++)
         {
             if (_playersInRoom[i] != null)
                 continue;

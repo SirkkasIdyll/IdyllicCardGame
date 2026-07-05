@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Systems.Player;
@@ -21,7 +22,7 @@ public partial class CurrentHandSystem : NodeSystem
     /// <summary>
     /// Players still participating in the current hand who haven't passed yet
     /// </summary>
-    private readonly Node<PlayerHandComponent>?[] _playersInHand = new Node<PlayerHandComponent>?[4];
+    private readonly Node<PlayerHandComponent>?[] _playersInHand = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
     
     // The player in control of hand is still in the round
     // They get to play whatever they want if everyone else passes the turn back to them
@@ -39,10 +40,10 @@ public partial class CurrentHandSystem : NodeSystem
     {
         base._Ready();
 
-        _signalBus.LeaveRoomSignal += OnLeftRoom;
+        _signalBus.LeaveRoomSignal += OnLeaveRoom;
     }
 
-    private void OnLeftRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
+    private void OnLeaveRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
         if (_currentPlayerTurn != null && _currentPlayerTurn.Value.Equals(player))
         {
@@ -50,7 +51,9 @@ public partial class CurrentHandSystem : NodeSystem
             return;
         }
         
-        _playersInHand.Remove(player);
+        var index = _playersInHand.IndexOf(player);
+        if (index != -1)
+            _playersInHand[index] = null;
     }
 
     /// <summary>

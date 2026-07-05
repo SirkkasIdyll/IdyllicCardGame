@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Systems.Player;
@@ -19,7 +20,7 @@ public partial class RoundSystem : NodeSystem
     /// <summary>
     /// Players participating in the round is anyone with cards still left in hand (means we're excluding late-joins)
     /// </summary>
-    private readonly Node<PlayerHandComponent>?[] _playersInRound = new Node<PlayerHandComponent>?[4];
+    private readonly Node<PlayerHandComponent>?[] _playersInRound = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
     
     // Round winner is the player that finishes first
     // They go first at the start of the next round
@@ -38,7 +39,9 @@ public partial class RoundSystem : NodeSystem
 
     private void OnLeaveRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
-        _playersInRound.Remove(player);
+        var index = _playersInRound.IndexOf(player);
+        if (index != -1)
+            _playersInRound[index] = null;
     }
 
     private void StartRound()
