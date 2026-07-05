@@ -33,7 +33,7 @@ public class RulesTest
     /// Recognize two cards as nothing
     /// </summary>
     [TestCase]
-    public void RecognizeSingleHandValidTest()
+    public void SingleHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
@@ -64,7 +64,7 @@ public class RulesTest
     /// Recognize three cards of the same rank as not a pair
     /// </summary>
     [TestCase]
-    public void RecognizePairHandValidTest()
+    public void PairHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
@@ -96,7 +96,7 @@ public class RulesTest
     /// Recognize three cards of the same rank as triples
     /// </summary>
     [TestCase]
-    public void TripleHandTest()
+    public void TripleHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
@@ -129,7 +129,7 @@ public class RulesTest
     /// Recognize four cards of the same rank as quads
     /// </summary>
     [TestCase]
-    public void QuadHandTest()
+    public void QuadHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
@@ -157,7 +157,7 @@ public class RulesTest
     /// Recognize three cards or more in a row as a sequence (order of cards given does not matter)
     /// </summary>
     [TestCase]
-    public void SequenceHandTest()
+    public void SequenceHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
@@ -245,7 +245,7 @@ public class RulesTest
     /// Recognize that two different sequences does not make a pair of a sequence
     /// </summary>
     [TestCase]
-    public void PairedSequenceHandTest()
+    public void PairedSequenceHandValidTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<DeckSystem>(out var deckSystem)).IsTrue();
         if (deckSystem is null)
