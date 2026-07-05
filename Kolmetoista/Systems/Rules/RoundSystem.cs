@@ -40,19 +40,18 @@ public partial class RoundSystem : NodeSystem
     private void OnLeaveRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
         var index = _playersInRound.IndexOf(player);
+        
         if (index != -1)
             _playersInRound[index] = null;
     }
 
     private void StartRound()
     {
-        var signal = new RoundStartSignal        
+        var signal = new RoundStartSignal
         {
-            RoundWinner = _roundWinner,
-            RoundLoser = _roundLoser
+            StartingPlayerIndex = GetStartingPlayerIndex(_roundWinner)
         };
         _signalBus.EmitRoundStartSignal(ref signal);
-        
         _roundWinner = null;
         _roundLoser = null;
     }
@@ -64,30 +63,47 @@ public partial class RoundSystem : NodeSystem
     }
     
     // <summary>
-    // Starter player in the order is determined by
+    // Starting player order:
     // 1. If there was a round winner, they start first and have freedom to play whatever
-    // 2. Whoever has the three of spades gets to start
-    // Player order goes clock-wise beginning with the starting player
+    // 2. Else, whoever has the three of spades gets to start and needs to play the three of spades
+    // 3. If we're playing with less than 4 people, and no one has the three, just give it to them
+    // Then player order goes clockwise
     // </summary>
-    public void DeterminePlayerOrder()
+    public int GetStartingPlayerIndex(Node<PlayerHandComponent>? roundWinner)
     {
-        // _handPlayers.Clear();
-        var startingPlayerIndex = 0;
-        if (_roundWinner != null)
-            startingPlayerIndex = _playersInRound.IndexOf(_roundWinner.Value);
+        var startingPlayerIndex = -1;
         
-        if (_roundWinner == null)
+        // Round winner starts
+        if (roundWinner != null)
+            startingPlayerIndex = _playersInRound.IndexOf(roundWinner.Value);
+        
+        // If no round winner, look for who has the three of spades
+        if (startingPlayerIndex == -1)
         {
-            // I don't really care if it's inefficient and loops through the rest, it shouldn't take that long
             foreach (var player in _playersInRound)
             {
-                foreach (var card in player.Comp.Cards)
+                if (player == null)
+                    continue;
+
+                if (startingPlayerIndex != -1)
+                    break;
+                
+                foreach (var card in player.Value.Comp.Cards)
                 {
-                    if (card.Comp.Rank == CardRank.Three && card.Comp.Suit == CardSuit.Spades)
+                    if (startingPlayerIndex != -1)
+                        break;
+                    
+                    if (card.Comp is { Rank: CardRank.Three, Suit: CardSuit.Spades })
                         startingPlayerIndex = _playersInRound.IndexOf(player);
                 }
             }
         }
+        
+        // If no one has the three of spades, just give it to someone man
+        if (startingPlayerIndex == -1)
+            startingPlayerIndex = 1;
+
+        return startingPlayerIndex;
 
         // Ex: If winning player is the 4th player (index 3)
         // i = 0; (0 + 3) % 4 = 3
@@ -103,7 +119,7 @@ public partial class RoundSystem : NodeSystem
 
 public class RoundStartSignal : UserSignalArgs
 {
-    public Node<PlayerHandComponent>? RoundWinner;
-    public Node<PlayerHandComponent>? RoundLoser;
+    public int StartingPlayerIndex = -1;
 }
+
 public class RoundEndSignal : UserSignalArgs;

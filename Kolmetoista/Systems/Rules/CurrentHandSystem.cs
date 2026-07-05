@@ -52,6 +52,7 @@ public partial class CurrentHandSystem : NodeSystem
         }
         
         var index = _playersInHand.IndexOf(player);
+        
         if (index != -1)
             _playersInHand[index] = null;
     }
@@ -72,26 +73,23 @@ public partial class CurrentHandSystem : NodeSystem
         // go to next player's turn
     }
     
-    private bool TryPlayHand(Node<PlayerHandComponent> player, List<Node<CardComponent>> selectedCards)
-    {
-        if (!_playableHandSystem.IsValidHandType(selectedCards, out var handType))
-            return false;
-            
-        if (!_playableHandSystem.CanPlayHand(selectedCards, _lastHandPlayed, _currentHandType))
-            return false;
-
-        foreach (var card in selectedCards)
-            player.Comp.Cards.Remove(card);
-        
-        _lastHandPlayed.AddRange(selectedCards);
-        _currentHandType = handType.Value;
-        
-        
-        
-        
-        var signal = new HandPlayedSignal(player);
-        _signalBus.EmitHandPlayedSignal(player, ref signal);
-    }
+    // private bool TryPlayHand(Node<PlayerHandComponent> player, List<Node<CardComponent>> selectedCards)
+    // {
+    //     if (!_playableHandSystem.IsValidHandType(selectedCards, out var handType))
+    //         return false;
+    //         
+    //     if (!_playableHandSystem.CanPlayHand(selectedCards, _lastHandPlayed, _currentHandType))
+    //         return false;
+    //
+    //     foreach (var card in selectedCards)
+    //         player.Comp.Cards.Remove(card);
+    //     
+    //     _lastHandPlayed.AddRange(selectedCards);
+    //     _currentHandType = handType.Value;
+    //     
+    //     var signal = new HandPlayedSignal(player);
+    //     _signalBus.EmitHandPlayedSignal(player, ref signal);
+    // }
     
     //     /// <summary>
     // /// When a hand is played, if the player is out of cards, pull them out of the round
