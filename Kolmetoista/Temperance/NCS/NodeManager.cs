@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Temperance.Signals;
 
-namespace KillerThirteen.Temperance.NCS;
+namespace Kolmetoista.Temperance.NCS;
 
 /// <summary>
 /// NCS - Node, Component, (Node)System architecture
@@ -11,17 +11,23 @@ namespace KillerThirteen.Temperance.NCS;
 /// The NodeManager is responsible for getting, removing, or spawning specific Nodes
 /// The NodeManager is an actual Node to get access to interact with Godot's MultiplayerSpawner 
 /// </summary>
-public partial class NodeManager : Node
+public partial class NodeManager
 {
     public static NodeManager Instance { get; } = new();
     private readonly ComponentManager _componentManager = ComponentManager.Instance;
     private readonly SignalBus _signalBus = SignalBus.Instance;
 
     public readonly Dictionary<string, string> NodeScenePathDictionary = []; // second value is the scene_file_path for spawning
+    private Node? _rootScene;
 
     private NodeManager()
     {
         GetAllNodePrototypes();
+    }
+
+    public void SetRootScene(Node rootScene)
+    {
+        _rootScene = rootScene;
     }
     
     /// <summary>
@@ -92,7 +98,7 @@ public partial class NodeManager : Node
             return false;
 
         node3D = GD.Load<PackedScene>(sceneFilePath).Instantiate<Node3D>();
-        GetParent().AddChild(node3D);
+        _rootScene?.AddChild(node3D);
         
         node3D.SetGlobalPosition(globalPosition);
         node3D.SetGlobalRotation(globalRotation);

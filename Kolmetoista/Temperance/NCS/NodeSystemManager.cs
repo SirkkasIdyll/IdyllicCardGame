@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Godot;
 using Godot.Collections;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Temperance.Signals;
 
-namespace KillerThirteen.Temperance.NCS;
+namespace Kolmetoista.Temperance.NCS;
 
 /// <summary>
 /// NCS - Node, Component, (Node)System architecture
@@ -95,6 +95,11 @@ public partial class NodeSystemManager
     {
         nodeSystem = _rootScene?.GetNodeOrNull<T>($"{typeof(T).Name}");
         return nodeSystem != null;
+    }
+
+    public void RemoveNodeSystem(string nodeSystemName)
+    {
+        _nodeSystemDictionary.Remove(nodeSystemName);
     }
 }
 

@@ -1,0 +1,32 @@
+<Project Sdk="Godot.NET.Sdk/4.7.0">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+        <LangVersion>14.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <RootNamespace>Kolmetoista</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+        <PackageReference Include="gdUnit4.api" Version="5.1.0-rc3" />
+        <PackageReference Include="gdUnit4.test.adapter" Version="3.0.0" />
+        <PackageReference Include="gdUnit4.analyzers" Version="1.0.0">
+            <PrivateAssets>none</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="**\*.cs.uid" />
+        <Content Include="**\*.tscn" />
+        <Content Include="Resources\Assets\icon.svg" />
+        <Content Include="Resources\Assets\icon.svg.import" />
+        <Content Include="Testament\.runsettings" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Resources\Prototypes\" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://blh75nt3xkwb3"]
+
+[ext_resource type="PackedScene" uid="uid://bc7m8ovyew043" path="res://Resources/Prototypes/BaseNode.tscn" id="1_xisv5"]
+[ext_resource type="Script" uid="uid://dw1fpwp7ho4nh" path="res://Systems/Cards/CardComponent.cs" id="2_nferw"]
+
+[node name="Card" unique_id=250192012 instance=ExtResource("1_xisv5")]
+
+[node name="CardComponent" type="Node" parent="." index="0" unique_id=60610154]
+script = ExtResource("2_nferw")
+metadata/_custom_type_script = "uid://dw1fpwp7ho4nh"

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using KillerThirteen.Temperance.Signals;
+using Kolmetoista.Temperance.Signals;
 using static GdUnit4.Assertions;
 
-namespace KillerThirteen.Temperance.NCS;
+namespace Kolmetoista.Temperance.NCS;
 
 /// <summary>
 /// NCS - Node, Component, (Node)System architecture
@@ -106,16 +107,16 @@ public class ComponentManager
         component.QueueFree();
     }
 
-    /// <summary>
-    /// Gets all nodes that have the Component T so that certain checks can be applied to them
-    /// or so that things that need to happen each frame can be applied to each component instance
-    /// </summary>
-    public void GetNodesWithComponent<T>(out List<Node> nodes) where T : Component
-    {
-        nodes = [];
-        if (NodeDictionary.TryGetValue(typeof(T).Name, out var nodeList))
-            nodes = nodeList;
-    }
+    // /// <summary>
+    // /// Gets all nodes that have the Component T so that certain checks can be applied to them
+    // /// or so that things that need to happen each frame can be applied to each component instance
+    // /// </summary>
+    // public void GetNodesWithComponent<T>(out List<Node> nodes) where T : Component
+    // {
+    //     nodes = [];
+    //     if (NodeDictionary.TryGetValue(typeof(T).Name, out var nodeList))
+    //         nodes = nodeList;
+    // }
 }
 
 public class ComponentAddedSignal : UserSignalArgs
@@ -142,7 +143,7 @@ public class ComponentRemovedSignal : UserSignalArgs
 /// A struct for dealing with a Node and Component tuple so that you can reference a node and it's component
 /// by having something like Node<MovementComponent> to maintain a reference to the node and the component at the same time
 /// </summary>
-public readonly struct Node<T> where T : Component?
+public readonly struct Node<T> : IEquatable<Node<T>> where T : Component?
 {
     public readonly Node Owner;
     public readonly T Comp;
@@ -180,5 +181,20 @@ public readonly struct Node<T> where T : Component?
     {
         parentNode = Owner;
         comp = Comp;
+    }
+
+    public bool Equals(Node<T> other)
+    {
+        return Owner.Equals(other.Owner) && EqualityComparer<T>.Default.Equals(Comp, other.Comp);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Node<T> other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Owner, Comp);
     }
 }
