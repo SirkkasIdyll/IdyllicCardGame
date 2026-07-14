@@ -3,9 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 using Kolmetoista.Systems.Cards;
-using Kolmetoista.Systems.Player;
 using Kolmetoista.Temperance.NCS;
-using Kolmetoista.Temperance.Signals;
 
 namespace Kolmetoista.Systems.Rules;
 
