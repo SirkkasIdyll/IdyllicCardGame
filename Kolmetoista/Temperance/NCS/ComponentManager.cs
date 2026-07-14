@@ -192,6 +192,16 @@ public readonly struct Node<T> : IEquatable<Node<T>> where T : Component?
     {
         return obj is Node<T> other && Equals(other);
     }
+    
+    public static bool operator ==(Node<T> node1, Node<T> node2)
+    {
+        return node1.Equals(node2);
+    }
+
+    public static bool operator !=(Node<T> node1, Node<T> node2)
+    {
+        return !node1.Equals(node2);
+    }
 
     public override int GetHashCode()
     {
