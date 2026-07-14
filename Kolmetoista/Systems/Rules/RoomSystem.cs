@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
 using Godot;
 using Kolmetoista.Systems.Player;
 using Kolmetoista.Temperance.NCS;
@@ -27,41 +28,44 @@ public partial class RoomSystem : NodeSystem
     /// A player should be able to join a game at any time but not necessarily be in the hand
     /// They can be dealt in next round
     /// </summary>
-    /// <param name="player"></param>
-    public void JoinRoom(Node<PlayerHandComponent> player)
+    /// <param name="node"></param>
+    public bool TryJoinRoom(Node<PlayerHandComponent> node)
     {
         for (var i = 0; i < MaxPlayers; i++)
         {
             if (_playersInRoom[i] != null)
                 continue;
             
-            _playersInRoom[i] = player;
-            var joinedSignal = new JoinedRoomSignal(player);
-            _signalBus.EmitJoinedRoomSignal(player, ref joinedSignal);
-            return;
+            _playersInRoom[i] = node;
+            var joinedSignal = new JoinedRoomSignal(node);
+            _signalBus.EmitJoinedRoomSignal(node, ref joinedSignal);
+            return true;
         }
 
         var failedSignal = new FailedToJoinRoomSignal();
         _signalBus.EmitFailedToJoinRoomSignal(ref failedSignal);
+        return false;
     }
 
     /// <summary>
     /// A player should be able to leave a game at any time
     /// </summary>
-    /// <param name="player"></param>
-    public void LeaveRoom(Node<PlayerHandComponent> player)
+    /// <param name="node"></param>
+    public void LeaveRoom(Node<PlayerHandComponent> node)
     {
-        for (var i = 0; i < _playersInRoom.Length; i++)
+        foreach (var player in _playersInRoom)
         {
-            if (_playersInRoom[i] == null)
+            if (player == null)
                 continue;
-            
-            if (!_playersInRoom[i].Value.Equals(player))
+
+            if (player.Value != node)
                 continue;
-            
-            _playersInRoom[i] = null;
-            var signal = new LeaveRoomSignal(player);
-            _signalBus.EmitLeaveRoomSignal(player, ref signal);
+
+            var index = _playersInRoom.IndexOf(node);
+            _playersInRoom[index] = null;
+
+            var signal = new LeaveRoomSignal(node);
+            _signalBus.EmitLeaveRoomSignal(node, ref signal);
             return;
         }
     }

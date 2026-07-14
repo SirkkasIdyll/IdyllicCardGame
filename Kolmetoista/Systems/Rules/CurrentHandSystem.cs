@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Systems.Player;
@@ -18,15 +19,15 @@ public partial class CurrentHandSystem : NodeSystem
 {
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
     [InjectedDependency] private readonly PlayableHandSystem _playableHandSystem = null!;
+    [InjectedDependency] private readonly RoundSystem _roundSystem = null!;
     
-    /// <summary>
-    /// Players still participating in the current hand who haven't passed yet
-    /// </summary>
-    private readonly Node<PlayerHandComponent>?[] _playersInHand = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
+    // Players still participating in the current hand who haven't passed yet
+    private Node<PlayerHandComponent>?[] _playersInCurrentHand = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
     
     // The player in control of hand is still in the round
     // They get to play whatever they want if everyone else passes the turn back to them
-    private Node<PlayerHandComponent>? _inControlOfHand;
+    // If the player in control runs out of cards, order is ceded to the next in list
+    private Node<PlayerHandComponent>? _playerInControlOfHand;
     
     // Current player is not in control of hand until they actually play something
     // They can choose to play or pass
@@ -41,8 +42,13 @@ public partial class CurrentHandSystem : NodeSystem
         base._Ready();
 
         _signalBus.LeaveRoomSignal += OnLeaveRoom;
+        _signalBus.RoundStartSignal += OnRoundStart;
     }
-
+    
+    /// <summary>
+    /// If a player leaves, gracefully pass the turn to the next player
+    /// and remove the player who quit from the current hand
+    /// </summary>
     private void OnLeaveRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
         if (_currentPlayerTurn != null && _currentPlayerTurn.Value.Equals(player))
@@ -51,10 +57,40 @@ public partial class CurrentHandSystem : NodeSystem
             return;
         }
         
-        var index = _playersInHand.IndexOf(player);
+        var playerWhoLeftIndex = _playersInCurrentHand.IndexOf(player);
         
-        if (index != -1)
-            _playersInHand[index] = null;
+        if (playerWhoLeftIndex != -1)
+            _playersInCurrentHand[playerWhoLeftIndex] = null;
+    }
+
+    private void OnRoundStart(ref RoundStartSignal args)
+    {
+        SetPlayersInCurrentHand(_roundSystem.GetPlayersInRound(), args.StartingPlayerIndex);
+        
+        if (_playersInCurrentHand[0] == null)
+            return;
+        
+        StartCurrentHand(_playersInCurrentHand[0].Value);
+    }
+
+    private void StartCurrentHand(Node<PlayerHandComponent> startingPlayer)
+    {
+        var signal = new StartCurrentHandSignal();
+        _signalBus.EmitStartCurrentHandSignal(ref signal);
+    }
+
+    /// <summary>
+    /// Sets the clockwise order for players, using the player pool from <see cref="RoundSystem"/>
+    /// </summary>
+    /// <param name="playersWithCards">Basically always just taken from the RoundSystem</param>
+    /// <param name="startingPlayerIndex">Who starts first in the order</param>
+    private void SetPlayersInCurrentHand(Node<PlayerHandComponent>?[] playersWithCards, int startingPlayerIndex)
+    {
+        var playersWithCardsCount = playersWithCards.Count(x => x != null);
+        _playersInCurrentHand = new Node<PlayerHandComponent>?[playersWithCardsCount];
+        
+        for (var i = 0; i < playersWithCardsCount; i++)
+            _playersInCurrentHand[i] = playersWithCards[(i + startingPlayerIndex) % playersWithCardsCount];
     }
 
     /// <summary>
@@ -170,6 +206,9 @@ public partial class CurrentHandSystem : NodeSystem
     //     _currentPlayerTurn = _handPlayers[(currentPlayerIndex + 1) % _handPlayers.Count];
     // }
 }
+
+public class StartCurrentHandSignal : UserSignalArgs;
+public class EndCurrentHandSignal : UserSignalArgs;
 
 public class TurnPassedSignal : UserSignalArgs
 {

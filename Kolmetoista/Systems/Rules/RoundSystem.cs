@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Systems.Player;
@@ -45,18 +44,27 @@ public partial class RoundSystem : NodeSystem
             _playersInRound[index] = null;
     }
 
-    private void StartRound()
+    /// <summary>
+    /// Return the players who still have cards left to play
+    /// </summary>
+    public Node<PlayerHandComponent>?[] GetPlayersInRound()
+    {
+        return _playersInRound;
+    }
+
+    public void StartRound()
     {
         var signal = new RoundStartSignal
         {
             StartingPlayerIndex = GetStartingPlayerIndex(_roundWinner)
         };
         _signalBus.EmitRoundStartSignal(ref signal);
+        
         _roundWinner = null;
         _roundLoser = null;
     }
 
-    private void EndRound()
+    public void EndRound()
     {
         var signal = new RoundEndSignal();
         _signalBus.EmitRoundEndSignal(ref signal);
@@ -69,7 +77,7 @@ public partial class RoundSystem : NodeSystem
     // 3. If we're playing with less than 4 people, and no one has the three, just give it to them
     // Then player order goes clockwise
     // </summary>
-    public int GetStartingPlayerIndex(Node<PlayerHandComponent>? roundWinner)
+    private int GetStartingPlayerIndex(Node<PlayerHandComponent>? roundWinner)
     {
         var startingPlayerIndex = -1;
         
@@ -104,16 +112,6 @@ public partial class RoundSystem : NodeSystem
             startingPlayerIndex = 1;
 
         return startingPlayerIndex;
-
-        // Ex: If winning player is the 4th player (index 3)
-        // i = 0; (0 + 3) % 4 = 3
-        // i = 1; (1 + 3) % 4 = 0
-        // i = 2; (2 + 3) % 4 = 1
-        // i = 3; (3 + 3) % 4 = 2
-        // for (int i = 0; i < _playersInRound.Count; i++)
-        //     _handPlayers.Add(_playersInRound[(i + startingPlayerIndex) % _playersInRound.Count]);
-        //
-        // _currentPlayerTurn = _handPlayers[0];
     }
 }
 
