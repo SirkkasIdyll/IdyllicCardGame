@@ -27,6 +27,7 @@ public class RoomTest
         AddNode(_rootScene);
     }
 
+    [TestCase]
     public async Task JoinAndLeaveRoomTest()
     {
         AssertBool(_nodeSystemManager.TryGetNodeSystem<RoomSystem>(out var roomSystem)).IsTrue();
