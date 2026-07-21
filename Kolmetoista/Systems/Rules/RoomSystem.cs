@@ -33,6 +33,16 @@ public partial class RoomSystem : NodeSystem
     {
         for (var i = 0; i < MaxPlayers; i++)
         {
+            if (!_playersInRoom[i].HasValue || _playersInRoom[i].Value != node)
+                continue;
+            
+            var alreadyInRoomSignal = new FailedToJoinRoomSignal();
+            _signalBus.EmitFailedToJoinRoomSignal(ref alreadyInRoomSignal);
+            return false;
+        }
+        
+        for (var i = 0; i < MaxPlayers; i++)
+        {
             if (_playersInRoom[i] != null)
                 continue;
             
