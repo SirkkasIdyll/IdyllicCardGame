@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Systems.Player;
@@ -7,15 +8,21 @@ using Kolmetoista.Temperance.Signals;
 
 namespace Kolmetoista.Systems.Rules;
 
+/// <summary>
+/// A round starts when all players are FIRST dealt their hands
+/// A round ends when only one player has cards left in their hand
+/// </summary>
 [GlobalClass]
 public partial class RoundSystem : NodeSystem
 {
+    [InjectedDependency] private readonly DeckSystem _deckSystem = null!;
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
+    [InjectedDependency] private readonly RoomSystem _roomSystem = null!;
     
     /// <summary>
     /// Players participating in the round is anyone with cards still left in hand (means we're excluding late-joins)
     /// </summary>
-    private readonly Node<PlayerHandComponent>?[] _playersInRound = new Node<PlayerHandComponent>?[4];
+    private Node<PlayerHandComponent>?[] _playersInRound = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
     
     // Round winner is the player that finishes first
     // They go first at the start of the next round
@@ -29,74 +36,121 @@ public partial class RoundSystem : NodeSystem
     {
         base._Ready();
 
-        _signalBus.LeftRoomSignal += OnLeftRoom;
+        _signalBus.LeaveRoomSignal += OnLeaveRoom;
     }
 
-    private void OnLeftRoom(Node<PlayerHandComponent> player, ref LeftRoomSignal args)
+    private void OnLeaveRoom(Node<PlayerHandComponent> player, ref LeaveRoomSignal args)
     {
-        _playersInRound.Remove(player);
+        var index = _playersInRound.IndexOf(player);
+        
+        if (index != -1)
+            _playersInRound[index] = null;
     }
 
-    private void StartRound()
+    /// <summary>
+    /// Return the players who still have cards left to play
+    /// </summary>
+    public Node<PlayerHandComponent>?[] GetPlayersInRound()
     {
-        var signal = new RoundStartSignal        
+        return _playersInRound;
+    }
+    
+    /// <summary>
+    /// Starts the next round using the current players in the room
+    /// </summary>
+    /// <returns></returns>
+    public bool TryStartRound()
+    {
+        // If we don't have enough players in the room, the round fails to start
+        var playersInRoom = _roomSystem.GetPlayersInRoom();
+        if (playersInRoom.Count(x => x!= null) < 2)
         {
-            RoundWinner = _roundWinner,
-            RoundLoser = _roundLoser
+            var failedToStartRoundSignal = new FailedToStartRoundSignal();
+            _signalBus.EmitFailedToStartRoundSignal(ref failedToStartRoundSignal);
+            return false;
+        }
+        
+        // If there are more than two players left with cards, we should also fail to start the round
+        // TODO: Add check here
+        
+        
+        // New round can begin, all players in the room are players for the next round
+        _playersInRound = playersInRoom;
+
+        // Losing player index is communicated because they're the dealer,
+        // and they deal out cards in clockwise order
+        var losingPlayerIndex = _playersInRound.IndexOf(_roundLoser) != -1 ? _playersInRound.IndexOf(_roundLoser) : 0;
+        _roundLoser = null;
+        _deckSystem.DealCards(_playersInRound, losingPlayerIndex);
+        
+        // Starting player index is communicated so that their turn begins
+        var startingPlayerIndex = GetStartingPlayerIndex(_playersInRound, _roundWinner);
+        _roundWinner = null;
+        var signal = new RoundStartSignal
+        {
+            StartingPlayerIndex = startingPlayerIndex
         };
         _signalBus.EmitRoundStartSignal(ref signal);
-        
-        _roundWinner = null;
-        _roundLoser = null;
+
+        return true;
     }
 
-    private void EndRound()
+    public void EndRound()
     {
         var signal = new RoundEndSignal();
         _signalBus.EmitRoundEndSignal(ref signal);
     }
     
     // <summary>
-    // Starter player in the order is determined by
+    // Starting player order:
     // 1. If there was a round winner, they start first and have freedom to play whatever
-    // 2. Whoever has the three of spades gets to start
-    // Player order goes clock-wise beginning with the starting player
+    // 2. Else, whoever has the three of spades gets to start and needs to play the three of spades
+    // 3. If we're playing with less than 4 people, and no one has the three, just give it to them
+    // Then player order goes clockwise
     // </summary>
-    public void DeterminePlayerOrder()
+    private int GetStartingPlayerIndex(Node<PlayerHandComponent>?[] playersInRound, Node<PlayerHandComponent>? roundWinner)
     {
-        // _handPlayers.Clear();
-        var startingPlayerIndex = 0;
-        if (_roundWinner != null)
-            startingPlayerIndex = _playersInRound.IndexOf(_roundWinner.Value);
+        var startingPlayerIndex = -1;
         
-        if (_roundWinner == null)
+        // Round winner starts
+        if (roundWinner != null)
+            startingPlayerIndex = playersInRound.IndexOf(roundWinner.Value);
+        
+        // If no round winner, look for who has the three of spades
+        if (startingPlayerIndex == -1)
         {
-            // I don't really care if it's inefficient and loops through the rest, it shouldn't take that long
-            foreach (var player in _playersInRound)
+            foreach (var player in playersInRound)
             {
-                foreach (var card in player.Comp.Cards)
+                if (player == null)
+                    continue;
+
+                if (startingPlayerIndex != -1)
+                    break;
+                
+                foreach (var card in player.Value.Comp.Cards)
                 {
-                    if (card.Comp.Rank == CardRank.Three && card.Comp.Suit == CardSuit.Spades)
-                        startingPlayerIndex = _playersInRound.IndexOf(player);
+                    if (startingPlayerIndex != -1)
+                        break;
+                    
+                    if (card.Comp is { Rank: CardRank.Three, Suit: CardSuit.Spades })
+                        startingPlayerIndex = playersInRound.IndexOf(player);
                 }
             }
         }
+        
+        // If no one has the three of spades, just give it to someone man
+        if (startingPlayerIndex == -1)
+            startingPlayerIndex = 1;
 
-        // Ex: If winning player is the 4th player (index 3)
-        // i = 0; (0 + 3) % 4 = 3
-        // i = 1; (1 + 3) % 4 = 0
-        // i = 2; (2 + 3) % 4 = 1
-        // i = 3; (3 + 3) % 4 = 2
-        // for (int i = 0; i < _playersInRound.Count; i++)
-        //     _handPlayers.Add(_playersInRound[(i + startingPlayerIndex) % _playersInRound.Count]);
-        //
-        // _currentPlayerTurn = _handPlayers[0];
+        return startingPlayerIndex;
     }
 }
 
+public class FailedToStartRoundSignal : UserSignalArgs;
+
 public class RoundStartSignal : UserSignalArgs
 {
-    public Node<PlayerHandComponent>? RoundWinner;
-    public Node<PlayerHandComponent>? RoundLoser;
+    public int StartingPlayerIndex = -1;
 }
+
 public class RoundEndSignal : UserSignalArgs;

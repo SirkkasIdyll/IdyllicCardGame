@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Temperance.NCS;
-
-namespace Kolmetoista.Testament;
-
 using GdUnit4;
 using static GdUnit4.Assertions;
+
+namespace Kolmetoista.Testament;
 
 [TestSuite][RequireGodotRuntime]
 public class DeckTest

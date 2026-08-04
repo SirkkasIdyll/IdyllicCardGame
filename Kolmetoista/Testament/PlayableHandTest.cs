@@ -10,7 +10,7 @@ using GdUnit4;
 using static GdUnit4.Assertions;
 
 [TestSuite][RequireGodotRuntime]
-public class RulesTest
+public class PlayableHandTest
 {
     private readonly Node _rootScene = new();
     private readonly ComponentManager _componentManager = ComponentManager.Instance;

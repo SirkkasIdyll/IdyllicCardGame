@@ -10,14 +10,14 @@ config_version=5
 
 [application]
 
-config/name="KillerThirteen"
+config/name="Kolmetoista"
 run/main_scene="uid://brmrwpm8vjkqm"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]
 
-project/assembly_name="KillerThirteen"
+project/assembly_name="Kolmetoista"
 
 [physics]
 

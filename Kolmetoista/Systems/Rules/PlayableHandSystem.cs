@@ -3,9 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 using Kolmetoista.Systems.Cards;
-using Kolmetoista.Systems.Player;
 using Kolmetoista.Temperance.NCS;
-using Kolmetoista.Temperance.Signals;
 
 namespace Kolmetoista.Systems.Rules;
 
@@ -112,12 +110,13 @@ public partial class PlayableHandSystem : NodeSystem
         var sortedHand = SortHand(cards);
         var handString = "Played: ";
         foreach (var card in sortedHand)
-            handString += card.Comp.Rank + " of " + card.Comp.Suit + ", ";
+            handString += ReadableShorthandCardText(card.Comp.Rank, card.Comp.Suit) + ", ";
         GD.Print(handString.Substring(0, handString.Length - 2));
         
         if (cards.Count == 1)
         {
             handType = HandType.Single;
+            GD.Print("Hand type is: "  + handType);
             return true;
         }
 
@@ -126,6 +125,7 @@ public partial class PlayableHandSystem : NodeSystem
             if (cards[0].Comp.Rank == cards[1].Comp.Rank)
             {
                 handType = HandType.Pair;
+                GD.Print("Hand type is: "  + handType);
                 return true;
             }
         }
@@ -136,6 +136,7 @@ public partial class PlayableHandSystem : NodeSystem
                 cards[1].Comp.Rank == cards[2].Comp.Rank)
             {
                 handType = HandType.Triples;
+                GD.Print("Hand type is: "  + handType);
                 return true;
             }
         }
@@ -147,6 +148,7 @@ public partial class PlayableHandSystem : NodeSystem
                 cards[2].Comp.Rank == cards[3].Comp.Rank)
             {
                 handType = HandType.Quads;
+                GD.Print("Hand type is: "  + handType);
                 return true;
             }
         }
@@ -157,6 +159,7 @@ public partial class PlayableHandSystem : NodeSystem
             if (sortedHand.Zip(sortedHand.Skip(1), (node1, node2) => node1.Comp.Rank + 1 == node2.Comp.Rank).All(x => x))
             {
                 handType = HandType.Sequence;
+                GD.Print("Hand type is: "  + handType);
                 return true;
             }
         }
@@ -171,13 +174,16 @@ public partial class PlayableHandSystem : NodeSystem
                     sortedHand[i].Comp.Rank == sortedHand[i + secondHalf].Comp.Rank)
                     continue;
 
+                GD.Print("Invalid hand type");
                 return false;
             }
 
             handType = HandType.PairedSequence;
+            GD.Print("Hand type is: "  + handType);
             return true;
         }
 
+        GD.Print("Invalid hand type");
         return false;
     }
 
@@ -188,6 +194,45 @@ public partial class PlayableHandSystem : NodeSystem
     private List<Node<CardComponent>> SortHand(List<Node<CardComponent>> cards)
     {
         return cards.OrderBy(x => x.Comp.Suit).ThenBy(x => x.Comp.Rank).ToList();
+    }
+
+    /// <summary>
+    /// Formats the cards into their human-readable variant
+    /// "Three of Spades" becomes "3♠"
+    /// </summary>
+    /// <param name="cardRank"></param>
+    /// <param name="cardSuit"></param>
+    /// <returns></returns>
+    private string ReadableShorthandCardText(CardRank cardRank, CardSuit cardSuit)
+    {
+        var rank = cardRank switch
+        {
+            CardRank.Three => "3",
+            CardRank.Four => "4",
+            CardRank.Five => "5",
+            CardRank.Six => "6",
+            CardRank.Seven => "7",
+            CardRank.Eight => "8",
+            CardRank.Nine => "9",
+            CardRank.Ten => "10",
+            CardRank.Jack => "J",
+            CardRank.Queen => "Q",
+            CardRank.King => "K",
+            CardRank.Ace => "A",
+            CardRank.Two => "2",
+            _ => ""
+        };
+
+        var suit = cardSuit switch
+        {
+            CardSuit.Spades => "♠",
+            CardSuit.Clubs => "♧",
+            CardSuit.Diamonds => "♦",
+            CardSuit.Hearts => "♡",
+            _ => ""
+        };
+
+        return rank + suit;
     }
 }
 
