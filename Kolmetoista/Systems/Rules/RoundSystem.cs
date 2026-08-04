@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Godot;
 using Kolmetoista.Systems.Cards;
 using Kolmetoista.Systems.Player;
@@ -8,18 +9,20 @@ using Kolmetoista.Temperance.Signals;
 namespace Kolmetoista.Systems.Rules;
 
 /// <summary>
-/// A round starts when all players are dealt their hands
+/// A round starts when all players are FIRST dealt their hands
 /// A round ends when only one player has cards left in their hand
 /// </summary>
 [GlobalClass]
 public partial class RoundSystem : NodeSystem
 {
+    [InjectedDependency] private readonly DeckSystem _deckSystem = null!;
     [InjectedDependency] private readonly SignalBus _signalBus = null!;
+    [InjectedDependency] private readonly RoomSystem _roomSystem = null!;
     
     /// <summary>
     /// Players participating in the round is anyone with cards still left in hand (means we're excluding late-joins)
     /// </summary>
-    private readonly Node<PlayerHandComponent>?[] _playersInRound = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
+    private Node<PlayerHandComponent>?[] _playersInRound = new Node<PlayerHandComponent>?[RoomSystem.MaxPlayers];
     
     // Round winner is the player that finishes first
     // They go first at the start of the next round
@@ -51,17 +54,45 @@ public partial class RoundSystem : NodeSystem
     {
         return _playersInRound;
     }
-
-    public void StartRound()
+    
+    /// <summary>
+    /// Starts the next round using the current players in the room
+    /// </summary>
+    /// <returns></returns>
+    public bool TryStartRound()
     {
+        // If we don't have enough players in the room, the round fails to start
+        var playersInRoom = _roomSystem.GetPlayersInRoom();
+        if (playersInRoom.Count(x => x!= null) < 2)
+        {
+            var failedToStartRoundSignal = new FailedToStartRoundSignal();
+            _signalBus.EmitFailedToStartRoundSignal(ref failedToStartRoundSignal);
+            return false;
+        }
+        
+        // If there are more than two players left with cards, we should also fail to start the round
+        // TODO: Add check here
+        
+        
+        // New round can begin, all players in the room are players for the next round
+        _playersInRound = playersInRoom;
+
+        // Losing player index is communicated because they're the dealer,
+        // and they deal out cards in clockwise order
+        var losingPlayerIndex = _playersInRound.IndexOf(_roundLoser) != -1 ? _playersInRound.IndexOf(_roundLoser) : 0;
+        _roundLoser = null;
+        _deckSystem.DealCards(_playersInRound, losingPlayerIndex);
+        
+        // Starting player index is communicated so that their turn begins
+        var startingPlayerIndex = GetStartingPlayerIndex(_playersInRound, _roundWinner);
+        _roundWinner = null;
         var signal = new RoundStartSignal
         {
-            StartingPlayerIndex = GetStartingPlayerIndex(_roundWinner)
+            StartingPlayerIndex = startingPlayerIndex
         };
         _signalBus.EmitRoundStartSignal(ref signal);
-        
-        _roundWinner = null;
-        _roundLoser = null;
+
+        return true;
     }
 
     public void EndRound()
@@ -77,18 +108,18 @@ public partial class RoundSystem : NodeSystem
     // 3. If we're playing with less than 4 people, and no one has the three, just give it to them
     // Then player order goes clockwise
     // </summary>
-    private int GetStartingPlayerIndex(Node<PlayerHandComponent>? roundWinner)
+    private int GetStartingPlayerIndex(Node<PlayerHandComponent>?[] playersInRound, Node<PlayerHandComponent>? roundWinner)
     {
         var startingPlayerIndex = -1;
         
         // Round winner starts
         if (roundWinner != null)
-            startingPlayerIndex = _playersInRound.IndexOf(roundWinner.Value);
+            startingPlayerIndex = playersInRound.IndexOf(roundWinner.Value);
         
         // If no round winner, look for who has the three of spades
         if (startingPlayerIndex == -1)
         {
-            foreach (var player in _playersInRound)
+            foreach (var player in playersInRound)
             {
                 if (player == null)
                     continue;
@@ -102,7 +133,7 @@ public partial class RoundSystem : NodeSystem
                         break;
                     
                     if (card.Comp is { Rank: CardRank.Three, Suit: CardSuit.Spades })
-                        startingPlayerIndex = _playersInRound.IndexOf(player);
+                        startingPlayerIndex = playersInRound.IndexOf(player);
                 }
             }
         }
@@ -114,6 +145,8 @@ public partial class RoundSystem : NodeSystem
         return startingPlayerIndex;
     }
 }
+
+public class FailedToStartRoundSignal : UserSignalArgs;
 
 public class RoundStartSignal : UserSignalArgs
 {

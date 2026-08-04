@@ -79,6 +79,11 @@ public partial class RoomSystem : NodeSystem
             return;
         }
     }
+
+    public Node<PlayerHandComponent>?[] GetPlayersInRoom()
+    {
+        return _playersInRoom;
+    }
 }
 
 public class JoinedRoomSignal : UserSignalArgs
